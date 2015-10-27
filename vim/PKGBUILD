@@ -6,34 +6,34 @@ arch=('i686' 'x86_64')
 url="http://github.com/vim/vim"
 pkgrel=1
 license=('GPL')
-depends=('gpm' 'ruby' 'lua' 'python2' 'python' 'acl')
-optdepends=()
-backup=()
+    depends=('gpm' 'ruby' 'lua' 'python2' 'python' 'acl' 'vim-runtime-git')
+    optdepends=()
+    backup=()
 options=()
-source=("git://github.com/vim/vim.git")
-md5sums=('SKIP')
+    source=("git://github.com/vim/vim.git")
+    md5sums=('SKIP')
 
-pkgver() {
-    cd "$pkgname"
-    echo $(git rev-list --count master).$(git rev-parse --short master)
-}
+    pkgver() {
+        cd "$pkgname"
+            echo $(git rev-list --count master).$(git rev-parse --short master)
+    }
 
 build() {
-    # apply patch
+# apply patch
     cp "${startdir}/gistfile1.diff" "$srcdir/vim/src"
-    cd "$srcdir/vim/src"
-    patch -p2 < gistfile1.diff
+        cd "$srcdir/vim/src"
+        patch -p2 < gistfile1.diff
 
-    cd "$startdir"
-    cd "$srcdir/vim"
+        cd "$startdir"
+        cd "$srcdir/vim"
 
-    sed -i 's|^.*\(#define SYS_.*VIMRC_FILE.*"\) .*$|\1|' src/feature.h
-    sed -i 's|^.*\(#define VIMRC_FILE.*"\) .*$|\1|' src/feature.h
+        sed -i 's|^.*\(#define SYS_.*VIMRC_FILE.*"\) .*$|\1|' src/feature.h
+        sed -i 's|^.*\(#define VIMRC_FILE.*"\) .*$|\1|' src/feature.h
 
-    (cd src && autoconf)
+        (cd src && autoconf)
 
-    # with-x=yes provides FEAT_XCLIPBOARD which provides FEAT_CLIENTSERVER
-    ./configure \
+# with-x=yes provides FEAT_XCLIPBOARD which provides FEAT_CLIENTSERVER
+        ./configure \
         --prefix=/usr \
         --localstatedir=/var/lib/vim \
         --with-features=huge \
@@ -51,25 +51,25 @@ build() {
         --enable-rubyinterp \
         --enable-luainterp
 
-    make 
+        make 
 }
 
 package() {
     cd "$srcdir/vim"
 
-    make DESTDIR="${pkgdir}" install
+        make DESTDIR="${pkgdir}" install
 
-    rm "${pkgdir}"/usr/bin/{ex,view}
+        rm "${pkgdir}"/usr/bin/{ex,view}
 
     find "${pkgdir}"/usr/share/man -type d -name 'man1' 2>/dev/null | \
         while read _mandir; do
             cd ${_mandir}
-            rm -f ex.1 view.1
-            rm -f evim.1
+    rm -f ex.1 view.1
+        rm -f evim.1
         done
 
         rm -r "${pkgdir}"/usr/share/vim
 
         install -Dm644 runtime/doc/uganda.txt \
-            "${pkgdir}"/usr/share/licenses/${pkgname}/license.txt
-    }
+        "${pkgdir}"/usr/share/licenses/${pkgname}/license.txt
+}
